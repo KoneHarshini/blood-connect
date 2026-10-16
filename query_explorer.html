@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Query Explorer{% endblock %}{% block page_heading %}Query Explorer{% endblock %}
+{% block content %}
+<div class="welcome-row"><div><h1>Query explorer</h1><p>Run common project questions against your live Neo4j graph.</p></div><span class="small-tag">10 predefined queries</span></div>
+<section class="panel"><div class="panel-head"><div><h2>Choose a query</h2><p>Some queries need an ID or blood group as input.</p></div></div>
+<form method="post" class="query-form"><label>Predefined query<select name="query_name" id="queryName" onchange="toggleInputs()" required>{% for key,name in query_names.items() %}<option value="{{ key }}" {% if chosen == key %}selected{% endif %}>{{ loop.index }}. {{ name }}</option>{% endfor %}</select></label>
+<label id="idInput">Record ID<input name="id" type="number" placeholder="Enter numeric ID"></label><label id="groupInput">Blood group<input name="group" placeholder="e.g. O+, A-, AB+"></label><button class="btn btn-primary" type="submit">▶ Run query</button></form>
+{% if error %}<div class="flash error">{{ error }}</div>{% endif %}
+{% if query_text %}<div class="query-code"><div class="query-code-head"><span>Cypher executed</span><span>Read-only predefined query</span></div><code>{{ query_text }}</code></div>{% endif %}
+{% if results %}<div class="panel-head result-head"><div><h2>Query results</h2><p>{{ results|length }} row(s) returned</p></div></div><div class="table-wrap"><table><thead><tr>{% for k in results[0].keys() %}<th>{{ k.replace('_',' ') }}</th>{% endfor %}</tr></thead><tbody>{% for row in results %}<tr>{% for value in row.values() %}<td>{{ value if value is not none else '—' }}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div>{% elif query_text and not error %}<div class="empty-state">The query ran successfully but returned no matching records.</div>{% endif %}
+</section>
+<script>
+function toggleInputs(){
+ const q=document.getElementById('queryName').value;
+ document.getElementById('idInput').style.display=['bank_donors','hospital_patients','patient_requests','bank_units','donor_donations','patient_details'].includes(q)?'grid':'none';
+ document.getElementById('groupInput').style.display=q==='available_group'?'grid':'none';
+}
+toggleInputs();
+</script>
+{% endblock %}

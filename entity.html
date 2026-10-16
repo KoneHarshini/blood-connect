@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}{{ cfg.title }}{% endblock %}{% block page_heading %}{{ cfg.title }}{% endblock %}
+{% block content %}
+<div class="welcome-row"><div><h1>{{ cfg.title }}</h1><p>View and manage {{ cfg.title|lower }} in your Neo4j database.</p></div><a class="btn btn-outline" href="{{ url_for('export_csv', key=key) }}">⇩ Export CSV</a></div>
+{% if error %}<div class="notice"><b>Unable to load records</b><p>{{ error }}</p></div>{% endif %}
+<section class="panel form-panel"><div class="panel-head"><div><h2>Add or update a record</h2><p>Using an existing ID updates that record instead of creating a duplicate.</p></div><span class="small-tag">CRUD · Create / Update</span></div>
+<form method="post" class="record-form">
+{% for field in cfg.fields %}<label>{{ field.replace('_',' ') }}{% if field == cfg.id %} *{% endif %}
+<input name="{{ field }}" placeholder="{{ field.replace('_',' ') }}" {% if field == cfg.id %}required{% endif %} {% if field in ['Age','Quantity','Donor_ID','Donation_ID','Blood_ID','Bank_ID','Patient_ID','Hospital_ID','Request_ID'] %}type="number"{% else %}type="text"{% endif %}></label>{% endfor %}
+<div class="form-actions"><button class="btn btn-primary" type="submit">Save record</button><button class="btn btn-outline" type="reset">Clear form</button></div>
+</form></section>
+<section class="panel"><div class="panel-head"><div><h2>All {{ cfg.title|lower }}</h2><p>{{ rows|length }} record(s) loaded</p></div><span class="small-tag">Live data</span></div>
+{% if rows %}<div class="table-wrap"><table><thead><tr>{% for field in cfg.fields %}<th>{{ field.replace('_',' ') }}</th>{% endfor %}<th>Actions</th></tr></thead><tbody>{% for row in rows %}<tr>{% for field in cfg.fields %}<td>{% if field == cfg.id %}<span class="id-chip">#{{ row.get(field) or '—' }}</span>{% elif field == 'Status' %}<span class="status status-{{ (row.get(field) or 'unknown')|lower }}">{{ row.get(field) or '—' }}</span>{% elif field == 'Blood_Group' %}<span class="blood-type">{{ row.get(field) or '—' }}</span>{% else %}{{ row.get(field) if row.get(field) is not none else '—' }}{% endif %}</td>{% endfor %}<td><form method="post" action="{{ url_for('delete_entity', key=key, record_id=row.get(cfg.id)) }}" onsubmit="return confirm('Delete this record and all its connected relationships? This cannot be undone.');"><button class="btn-delete" title="Delete record" type="submit">Delete</button></form></td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="empty-state">No records found, or the database is not connected. Add a record above or check the .env file.</div>{% endif %}</section>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Graph View{% endblock %}{% block page_heading %}Graph View{% endblock %}
+{% block head %}<script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>{% endblock %}
+{% block content %}
+<div class="welcome-row"><div><h1>Graph explorer</h1><p>Explore how donors, donations, units, banks, patients and hospitals connect.</p></div><span class="small-tag">{{ nodes|length }} nodes · {{ edges|length }} relationships</span></div>
+{% if error %}<div class="notice"><b>Could not load graph</b><p>{{ error }}</p></div>{% endif %}
+<section class="panel graph-panel"><div class="graph-toolbar"><span><i class="status-dot"></i> Live relationship map</span><button class="btn btn-outline" onclick="network.fit()">Fit graph to screen</button></div><div id="network"></div><div class="graph-legend"><span><i class="legend-dot donor"></i> Donor</span><span><i class="legend-dot unit"></i> Blood Unit</span><span><i class="legend-dot bank"></i> Blood Bank</span><span><i class="legend-dot patient"></i> Patient</span><span><i class="legend-dot other"></i> Other nodes</span></div></section>
+<script>
+const nodesData = {{ nodes|tojson }};
+const edgesData = {{ edges|tojson }};
+const container = document.getElementById('network');
+const palette = {Donor:'#e85d75', BloodUnit:'#f3a64a', BloodBank:'#4f8edc', Patient:'#8b72d9', Hospital:'#36a68a', Donation:'#6f8197', Request:'#b67bce'};
+const nodes = new vis.DataSet(nodesData.map(n => ({...n, shape:'dot', size:20, color:{background:palette[n.group]||'#8895a7',border:'#ffffff',highlight:{background:palette[n.group]||'#8895a7',border:'#1f2937'}}, font:{color:'#253047',size:13,face:'DM Sans'}, borderWidth:2})));
+const edges = new vis.DataSet(edgesData.map(e => ({...e, color:{color:'#c6ccd7',highlight:'#e45169'},font:{size:10,align:'middle',color:'#737d8d',strokeWidth:3,strokeColor:'#ffffff'},arrows:'to',smooth:{type:'dynamic'}})));
+const network = new vis.Network(container,{nodes,edges},{interaction:{hover:true,navigationButtons:true,keyboard:true},physics:{stabilization:{iterations:150},barnesHut:{gravitationalConstant:-3500,springLength:150}},edges:{width:1.5},nodes:{scaling:{min:14,max:28}}});
+</script>
+{% endblock %}

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}BloodConnect{% endblock %} | BloodConnect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="{{ url_for('dashboard') }}"><span class="brand-mark">✚</span><span>Blood<span class="brand-red">Connect</span><small>MANAGEMENT PORTAL</small></span></a>
+    <div class="nav-label">WORKSPACE</div>
+    <nav>
+      <a class="{{ 'active' if request.endpoint == 'dashboard' else '' }}" href="{{ url_for('dashboard') }}"><span>▦</span> Dashboard</a>
+      <a href="{{ url_for('entity_page', key='donors') }}" class="{{ 'active' if request.path == '/entity/donors' else '' }}"><span>♡</span> Donors</a>
+      <a href="{{ url_for('entity_page', key='donations') }}"><span>↗</span> Donations</a>
+      <a href="{{ url_for('entity_page', key='blood-units') }}"><span>◉</span> Blood Units</a>
+      <a href="{{ url_for('entity_page', key='blood-banks') }}"><span>▤</span> Blood Banks</a>
+      <a href="{{ url_for('entity_page', key='patients') }}"><span>♙</span> Patients</a>
+      <a href="{{ url_for('entity_page', key='hospitals') }}"><span>⌂</span> Hospitals</a>
+      <a href="{{ url_for('entity_page', key='requests') }}"><span>☷</span> Blood Requests</a>
+    </nav>
+    <div class="nav-label nav-spacer">TOOLS</div>
+    <nav>
+      <a href="{{ url_for('relationships') }}"><span>⤳</span> Relationships</a>
+      <a href="{{ url_for('query_explorer') }}"><span>⌕</span> Query Explorer</a>
+      <a href="{{ url_for('graph') }}"><span>◎</span> Graph View</a>
+      <a href="{{ url_for('about') }}"><span>ⓘ</span> About Project</a>
+    </nav>
+    <div class="sidebar-bottom"><span class="status-dot"></span> Neo4j-connected workspace<small>BloodConnect v1.0</small></div>
+  </aside>
+  <main class="main-area">
+    <header class="topbar"><div><span class="eyebrow">BLOOD BANK MANAGEMENT</span><div class="top-title">{% block page_heading %}Dashboard{% endblock %}</div></div><div class="top-actions"><span class="live-pill"><i></i> Live database</span><span class="avatar">BC</span></div></header>
+    <div class="content">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}{% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}{% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+      <footer>BloodConnect <span>•</span> Academic DBMS Project <span class="footer-right">Powered by Flask + Neo4j</span></footer>
+    </div>
+  </main>
+</div>
+</body>
+</html>
